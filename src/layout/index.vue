@@ -5,7 +5,7 @@
         <Aside />
       </el-aside>
       <el-container>
-        <el-header>
+        <el-header style="height:40px">
           <Header></Header>
         </el-header>
         <router-view></router-view>
@@ -33,10 +33,12 @@ export default {
   background: rgb(48, 65, 86);
 }
 .layout .el-menu {
+  border-right: none;
   background: rgb(48, 65, 86);
 }
 .layout .el-submenu__title:hover,
-.layout .el-menu-item:hover {
+.layout .el-menu-item:hover,
+.layout .el-menu-item:focus {
   background-color: #263445 !important;
 }
 html,

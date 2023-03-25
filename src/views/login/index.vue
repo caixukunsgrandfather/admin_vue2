@@ -21,8 +21,8 @@
             autocomplete="off"
           ></el-input>
         </el-form-item>
-        <el-form-item prop="code" class="caixukun">
-          <el-input v-model="ruleForm.code" maxlength="4"></el-input>
+        <el-form-item prop="text" class="caixukun">
+          <el-input v-model="ruleForm.text" maxlength="4"></el-input>
           <img @click="changsrc" class="code" :src="code_src" />
         </el-form-item>
         <el-form-item>
@@ -36,6 +36,8 @@
 
 <script>
 import { v4 as uuidv4 } from "uuid";
+// import { watch } from "vue";
+import { login } from "@/api/user";
 export default {
   data() {
     var checkAge = (rule, value, callback) => {
@@ -67,12 +69,12 @@ export default {
       ruleForm: {
         username: "",
         password: "",
-        code: ""
+        text: ""
       },
       rules: {
         username: [{ validator: validateusername, trigger: "blur" }],
         password: [{ validator: validatePass2, trigger: "blur" }],
-        code: [{ validator: checkAge, trigger: "blur" }]
+        text: [{ validator: checkAge, trigger: "blur" }]
       },
       code_src: "",
       uuid: "",
@@ -98,24 +100,26 @@ export default {
       this.redercode();
     },
     submitForm(formName) {
-      this.$refs[formName].validate(valid => {
+      this.$refs[formName].validate(async valid => {
         if (valid) {
-          this.$http({
-            url: "api/supersignin",
-            method: "POST",
-            data: `username=${this.ruleForm.username}&password=${this.ruleForm.password}&uuid=${this.uuid}&text=${this.ruleForm.code}`
-          })
-            .then(res => {
-              this.$message({
-                message: res.data.msg,
-                type: "success",
-               
-              });
-              this.$router.push('/');
-            })
-            .catch(error => {});
+          //去发送请求
+          const res = await login(
+            Object.assign(this.ruleForm, { uuid: this.uuid })
+          );
+          if (res.data.status == "success") {
+            localStorage.setItem("token", res.data.token);
+            this.$store.commit("writeToken", res.data.token);
+            this.$message({
+              message: res.data.msg,
+              type: "success"
+            });
+            this.$router.push("/");
+          } else {
+            this.$message.error(res.data.msg);
+            this.redercode();
+          }
         } else {
-          console.log("error submit!!");
+          // console.log("error submit!!");
           return false;
         }
       });
@@ -149,6 +153,8 @@ export default {
   right: 0;
   bottom: 0;
   background: #2b3a4d;
+  // background: url(../../assets/5.webp);
+  background-size: 100% 100%;
 }
 .cust-form {
   width: 400px;
